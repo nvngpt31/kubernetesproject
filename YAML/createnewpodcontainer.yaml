@@ -116,3 +116,21 @@ Events:
   Normal  Created    22m   kubelet            Created container: authapp
   Normal  Started    22m   kubelet            Started container authapp
 
+Different commands to perform with the pods:
+1. kubectl get pods
+2. kubectl describe pod <podname>
+3. kubectl logs <podname> -c <containername> or just run kubectl logs for help
+4. kubectl exec -it <podname> -- /bin/bash
+5. kubectl delete pod <podname>
+
+Example output:
+kubectl delete pod authentication
+pod "authentication" deleted
+
+kubectl get pods
+NAME            READY   STATUS             RESTARTS          AGE
+crash-pod       0/1     CrashLoopBackOff   573 (3m51s ago)   70d
+my-pinned-pod   1/1     Running            11 (125m ago)     70d
+
+6. Force delete: kubectl delete pod <pod-name> --grace-period=0 --force
+7. All pod delete in the active namespace: kubectl delete pods --all
