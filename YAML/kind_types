@@ -1,4 +1,4 @@
-There are total 75 kinds or types of objects you can create in k8s. To get a list run "kubectl api-resouces" 
+There are total build-in 75 kinds or types of objects you can create in k8s. To get a list run "kubectl api-resouces" 
 
 cloud_user@923bf0c1aa1c:~$ kubectl api-resources
 NAME                                SHORTNAMES   APIVERSION                        NAMESPACED   KIND
@@ -77,3 +77,16 @@ csinodes                                         storage.k8s.io/v1              
 csistoragecapacities                             storage.k8s.io/v1                 true         CSIStorageCapacity
 storageclasses                      sc           storage.k8s.io/v1                 false        StorageClass
 volumeattachments                                storage.k8s.io/v1                 false        VolumeAttachment
+
+But you can add infinitely custom kins using Custom Resource Definitions (CRDs)
+
+There are 4 main cagegories of kinds:
+1. Workloads: Pod, Deployment, StatefulSet, DaemonSet, Job, CronJob
+2. Discovery & Routing: Service, Ingress
+3. Config & Storage: ConfigMap, Secret, PresistentVolumeClaim
+4. Governance: Role, RoleBinding, NetworkPolicy
+
+To inspect a kind run "kubectl explain <kind>
+
+
+
