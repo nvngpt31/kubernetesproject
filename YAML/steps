@@ -1,0 +1,2 @@
+1. Save the files on the server as hdfcnamespacecreation.yaml
+2. Run the command kubectl apply -f hdfcnamespacecreation.yaml
