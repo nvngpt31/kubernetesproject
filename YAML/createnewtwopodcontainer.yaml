@@ -1,17 +1,74 @@
 Code:
 
-
 apiVersion: v1
 kind: Pod
-metadata: 
+metadata:
   name: authentication
 spec:
   containers:
     - name: authapp
       image: nginx
     - name: dbapp
-      image: mysqldb
-    - name: helperapp
-      image: busybox
+      image: mysql:latest
 
-It will give error as previous we had created 
+
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  65s                default-scheduler  Successfully assigned default/authentication to 923bf0c1aa4c.mylabserver.com
+  Normal   Pulling    65s                kubelet            Pulling image "nginx"
+  Normal   Pulled     64s                kubelet            Successfully pulled image "nginx" in 652ms (652ms including waiting). Image size: 63135215 bytes.
+  Normal   Created    64s                kubelet            Created container: authapp
+  Normal   Started    64s                kubelet            Started container authapp
+  Normal   Pulled     33s                kubelet            Successfully pulled image "mysql:latest" in 30.457s (30.457s including waiting). Image size: 272345689 bytes.
+  Normal   Pulled     24s                kubelet            Successfully pulled image "mysql:latest" in 664ms (664ms including waiting). Image size: 272345689 bytes.
+  Normal   Pulling    11s (x3 over 64s)  kubelet            Pulling image "mysql:latest"
+  Normal   Created    10s (x3 over 31s)  kubelet            Created container: dbapp
+  Normal   Started    10s (x3 over 31s)  kubelet            Started container dbapp
+  Normal   Pulled     10s                kubelet            Successfully pulled image "mysql:latest" in 703ms (703ms including waiting). Image size: 272345689 bytes.
+  Warning  BackOff    7s (x2 over 21s)   kubelet            Back-off restarting failed container dbapp in pod authentication_default(2fecf841-ad9e-4973-9556-3dc3a82ae447)
+
+the dbapp container is crashing and entering a CrashLoopBackOff state (backoff restarting failed)
+Whiel the image is pulling successfully, the mysql process inside the container is terminating immediately after starting. Run "kubectl logs authentication -c dbapp" 
+
+Reasons:
+1. missing or typoo in env variables or not assigned. 
+2. arch mismatched or startup timeout. 
+
+code:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: authentication
+spec:
+  containers:
+    - name: authapp
+      image: nginx
+    - name: dbapp
+      image: mysql:latest
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Test124$asdfasdf23###"
+
+> k create -f createauthpodcontainers.yaml
+pod/authentication created
+
+> k get pods
+NAME             READY   STATUS             RESTARTS        AGE
+authentication   2/2     Running            0               2m50s
+
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  29s   default-scheduler  Successfully assigned default/authentication to 923bf0c1aa4c.mylabserver.com
+  Normal  Pulling    28s   kubelet            Pulling image "nginx"
+  Normal  Pulled     28s   kubelet            Successfully pulled image "nginx" in 617ms (617ms including waiting). Image size: 63135215 bytes.
+  Normal  Created    28s   kubelet            Created container: authapp
+  Normal  Started    27s   kubelet            Started container authapp
+  Normal  Pulling    27s   kubelet            Pulling image "mysql:latest"
+  Normal  Pulled     27s   kubelet            Successfully pulled image "mysql:latest" in 673ms (673ms including waiting). Image size: 272345689 bytes.
+  Normal  Created    27s   kubelet            Created container: dbapp
+  Normal  Started    27s   kubelet            Started container dbapp
+
+      
