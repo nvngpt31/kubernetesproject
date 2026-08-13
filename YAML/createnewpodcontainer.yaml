@@ -1,0 +1,63 @@
+first giving wrong yaml and error
+
+Wrong example 1:
+
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: authentication
+specs:
+  containers:
+    - name: authapp
+      image: nginx
+
+Error: Error from server (BadRequest): error when creating "createauthapp.yaml": Pod in version "v1" cannot be handled as a Pod: strict decoding error: unknown field "specs"
+
+Wrong example 2: 
+
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: authentication
+spec:
+  container:
+    - name: authapp
+      image: nginx
+
+Error: Error from server (BadRequest): error when creating "createauthapp.yaml": Pod in version "v1" cannot be handled as a Pod: strict decoding error: unknown field "spec.container"
+
+Wrong example 3:
+
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: authentication
+spec:
+  containers:
+    name: authapp
+    image: nginx
+
+Error: Error from server (BadRequest): error when creating "createauthapp.yaml": Pod in version "v1" cannot be handled as a Pod: json: cannot unmarshal object into Go struct 
+field PodSpec.spec.containers of type []v1.Container
+
+Right example 4:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: authentication
+spec:
+  containers:
+    - name: authapp
+      image: nginx
+
+Output you will get something: "pod/authentication created"
+
+Verify the output of: "kubectl  get pods"
+
+NAME             READY   STATUS             RESTARTS        AGE
+authentication   1/1     Running            0               56s
+crash-pod        0/1     CrashLoopBackOff   565 (87s ago)   70d
+my-pinned-pod    1/1     Running            11 (82m ago)    70d
+
+
