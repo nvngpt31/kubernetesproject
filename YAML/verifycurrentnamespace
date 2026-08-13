@@ -1,0 +1,53 @@
+1. Run "kubectl config view"
+2. Check for namespace is given under contexts after cluster.
+
+Example: "kubectl config view"
+  
+Output: 
+  
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://172.31.116.58:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+
+
+3. If not able to see anything it means default is set. 
+4. Use set-context switch  to set it to the desired namespace: "kubectl config set-context --current --namespace=hdfc"
+4. Run "kubectl config view" to check again
+
+Output:
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://172.31.116.58:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    namespace: hdfc
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
