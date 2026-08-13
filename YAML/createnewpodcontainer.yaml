@@ -60,4 +60,59 @@ authentication   1/1     Running            0               56s
 crash-pod        0/1     CrashLoopBackOff   565 (87s ago)   70d
 my-pinned-pod    1/1     Running            11 (82m ago)    70d
 
+k describe pod authentication
+Name:             authentication
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             923bf0c1aa4c.mylabserver.com/172.31.116.178
+Start Time:       Thu, 13 Aug 2026 14:07:26 +0000
+Labels:           <none>
+Annotations:      cni.projectcalico.org/containerID: 404571885a5e7fdf3d041888537725bd325107cd7fd3f523be7d4b142f05cb68
+                  cni.projectcalico.org/podIP: 192.168.74.11/32
+                  cni.projectcalico.org/podIPs: 192.168.74.11/32
+Status:           Running
+IP:               192.168.74.11
+IPs:
+  IP:  192.168.74.11
+Containers:
+  authapp:
+    Container ID:   containerd://9d355b66b26961dc826a5a856a8a6bd1ddf93b736211b2703f5fa741a9989a82
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:8541484afbc9c8a5a8a99b379568ebbc957f658583ec9448fc43104229c03cf8
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Thu, 13 Aug 2026 14:07:34 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zmft7 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-zmft7:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  23m   default-scheduler  Successfully assigned default/authentication to 923bf0c1aa4c.mylabserver.com
+  Normal  Pulling    23m   kubelet            Pulling image "nginx"
+  Normal  Pulled     22m   kubelet            Successfully pulled image "nginx" in 6.546s (6.546s including waiting). Image size: 63135215 bytes.
+  Normal  Created    22m   kubelet            Created container: authapp
+  Normal  Started    22m   kubelet            Started container authapp
 
