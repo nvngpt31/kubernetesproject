@@ -1,0 +1,17 @@
+Code:
+
+
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: authentication
+spec:
+  containers:
+    - name: authapp
+      image: nginx
+    - name: dbapp
+      image: mysqldb
+    - name: helperapp
+      image: busybox
+
+It will give error as previous we had created 
