@@ -1,2 +1,15 @@
 1. Save the files on the server as hdfcnamespacecreation.yaml
 2. Run the command kubectl apply -f hdfcnamespacecreation.yaml
+3. Output you get something "namespace/hdfc created"
+
+
+Example of wrong indentation and error: 3 speces are given under category lables. 
+Error received: Error from server (BadRequest): error when creating "hdfcnamespacecreation.yaml": Namespace in version "v1" cannot be handled as a Namespace: strict 
+decoding error: unknown field "metadata.lables"
+
+apiVersion: v1
+kind: Namespace
+metadata: 
+   name: hdfc
+   lables:
+      tier: backend 
