@@ -19,3 +19,13 @@ find "${BACKUP_DIR}" -name "etcd-snapshot-*.db" -mtime +7 -delete
 #previous backup got hung due to TLS auth handshake requirments enformed on the cluster. It was dropping unencrypted anonymous snapshot requests. 
 To fix this, passed cluster's certificate authority (ca.crt), client certificate (server.crt), and private key (server.key) directly inside the backup script so etcdctl 
 can pass the secure handshake.
+===========================================================================
+#How to check the backed up snapshot status.
+ETCDCTL_API=3 /usr/local/bin/etcd/bin/etcdctl --write-out=table snapshot status /opt/etcd-backups/etcd-snapshot-2026-08-17_013049.db
+Deprecated: Use `etcdutl snapshot status` instead.
+
++---------+----------+------------+------------+
+|  HASH   | REVISION | TOTAL KEYS | TOTAL SIZE |
++---------+----------+------------+------------+
+| 453b1fa |   358305 |       1336 |     4.6 MB |
++---------+----------+------------+------------+
