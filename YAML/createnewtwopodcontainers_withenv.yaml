@@ -1,1 +1,5 @@
+#nc -zv <hostipofnode> 10250
+#sudo ufw allow 10250/tcp
+#10250 should be allowed to get the logs
+
 
