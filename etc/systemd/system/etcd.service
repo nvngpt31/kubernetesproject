@@ -1,0 +1,18 @@
+[Unit]
+Description=etcd service
+Documentation=https://github.com
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/etcd/bin/etcd \
+  --name=etcd-node-1 \
+  --data-dir=/var/lib/etcd \
+  --listen-client-urls=http://127.0.0.1:2379 \
+  --advertise-client-urls=http://127.0.0.1:2379
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
