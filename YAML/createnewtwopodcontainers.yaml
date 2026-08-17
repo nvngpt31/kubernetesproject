@@ -71,4 +71,16 @@ Events:
   Normal  Created    27s   kubelet            Created container: dbapp
   Normal  Started    27s   kubelet            Started container dbapp
 
+#To check database from container. 
+root@<servername>:/opt/etcd-backups# kubectl exec -it authentication -c dbapp -- mysql -u root -p  -e "SHOW DATABASES;"
+Enter password:
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+
       
