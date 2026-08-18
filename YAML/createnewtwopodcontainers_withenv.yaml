@@ -2,4 +2,215 @@
 #sudo ufw allow 10250/tcp
 #10250 should be allowed to get the logs
 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: authentication
+spec:
+  containers:
+    - name: authapp
+      image: nginx
+    - name: dbapp
+      image: mysql:latest
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "abcd1234!@#$"
+        - name: MYSQL_DATABASE
+          value: "auth_db"
+      ports:
+        - containerPort: 3306
+          name: mysql
+      startupProbe:
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 5
+      livenessProbe:
+        tcpSocket:
+          port: 3306
+        periodSeconds: 10
+      readinessProbe:
+        tcpSocket:
+          port: 3306
+        periodSeconds: 10
+
+Pod got created, but only one container is up. 
+root@923bf0c1aa1c:~# k get pods
+NAME             READY   STATUS             RESTARTS         AGE
+authentication   1/2     Running            3 (12s ago)      4m42s
+crash-pod        0/1     CrashLoopBackOff   810 (2m6s ago)   75d
+my-pinned-pod    1/1     Running            16 (31m ago)     75d
+
+While checking logs, it took time to startone min and password didn't get assigned. 
+
+cloud_user@923bf0c1aa1c:~$ kubectl  logs authentication -c dbapp
+2026-08-18 08:17:01+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 26.7.0-1.el9 started.
+2026-08-18 08:17:01+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2026-08-18 08:17:01+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 26.7.0-1.el9 started.
+2026-08-18 08:17:02+00:00 [Note] [Entrypoint]: Initializing database files
+2026-08-18T08:17:02.107681Z 0 [System] [MY-015017] [Server] MySQL Server Initialization - start.
+2026-08-18T08:17:02.110164Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 26.7.0) initializing of server in progress as process 79
+2026-08-18T08:17:02.187294Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-08-18T08:17:12.331334Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-08-18T08:17:31.569961Z 6 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+2026-08-18T08:17:46.028693Z 0 [System] [MY-015018] [Server] MySQL Server Initialization - end.
+2026-08-18 08:17:46+00:00 [Note] [Entrypoint]: Database files initialized
+2026-08-18 08:17:46+00:00 [Note] [Entrypoint]: Starting temporary server
+2026-08-18T08:17:46.111123Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-08-18T08:17:46.494912Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 26.7.0) starting as process 116
+2026-08-18T08:17:46.494942Z 0 [System] [MY-015603] [Server] MySQL Server has access to 2 logical CPUs.
+2026-08-18T08:17:46.494965Z 0 [System] [MY-015603] [Server] MySQL Server has access to 2030141440 bytes of physical memory.
+2026-08-18T08:17:46.553155Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+
+Log says password didnot get assigned, but when trying to logged in it took the assigned password and showing the db as well. 
+
+root@923bf0c1aa1c:~# kubectl exec -it authentication -c dbapp -- mysql -u root -p  -e "SHOW DATABASES;"
+Enter password:
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+command terminated with exit code 1
+root@923bf0c1aa1c:~# kubectl exec -it authentication -c dbapp -- mysql -u root -p  -e "SHOW DATABASES;"
+Enter password:
++--------------------+
+| Database           |
++--------------------+
+| auth_db            |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+
+Pod describe log:
+
+root@923bf0c1aa1c:~# k describe pod authentication
+Name:             authentication
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             923bf0c1aa4c.mylabserver.com/172.31.116.178
+Start Time:       Tue, 18 Aug 2026 08:15:24 +0000
+Labels:           <none>
+Annotations:      cni.projectcalico.org/containerID: be58383ef62a981a87a92205bb996b4efbd6d770658ebbbd7f7b89a1cb7cf4a5
+                  cni.projectcalico.org/podIP: 192.168.74.20/32
+                  cni.projectcalico.org/podIPs: 192.168.74.20/32
+Status:           Running
+IP:               192.168.74.20
+IPs:
+  IP:  192.168.74.20
+Containers:
+  authapp:
+    Container ID:   containerd://da8c2dc9b84f14b440518c8d3afb653cf431ddf1c9770e95ad0940dc54d2c035
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:8541484afbc9c8a5a8a99b379568ebbc957f658583ec9448fc43104229c03cf8
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 18 Aug 2026 08:15:27 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-wpsmr (ro)
+  dbapp:
+    Container ID:   containerd://7ac9d0937bb84d964076ef6f0b68a8ffa30220eb97049a9d3f3faff7d71d4aeb
+    Image:          mysql:latest
+    Image ID:       docker.io/library/mysql@sha256:66aec17cd21a956029b83f083b813073859e8355dc1a00e55df6ba02f0e32345
+    Port:           3306/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 18 Aug 2026 08:24:08 +0000
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    137
+      Started:      Tue, 18 Aug 2026 08:22:37 +0000
+      Finished:     Tue, 18 Aug 2026 08:24:04 +0000
+    Ready:          False
+    Restart Count:  6
+    Liveness:       tcp-socket :3306 delay=0s timeout=1s period=10s #success=1 #failure=3
+    Readiness:      tcp-socket :3306 delay=0s timeout=1s period=10s #success=1 #failure=3
+    Startup:        tcp-socket :3306 delay=10s timeout=1s period=10s #success=1 #failure=5
+    Environment:
+      MYSQL_ROOT_PASSWORD:  abcd1234!@#$
+      MYSQL_DATABASE:       auth_db
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-wpsmr (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-wpsmr:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                     From               Message
+  ----     ------     ----                    ----               -------
+  Normal   Scheduled  10m                     default-scheduler  Successfully assigned default/authentication to 923bf0c1aa4c.mylabserver.com
+  Normal   Pulling    10m                     kubelet            Pulling image "nginx"
+  Normal   Pulled     10m                     kubelet            Successfully pulled image "nginx" in 1.045s (1.045s including waiting). Image size: 63135215 bytes.
+  Normal   Created    10m                     kubelet            Created container: authapp
+  Normal   Started    10m                     kubelet            Started container authapp
+  Normal   Pulled     10m                     kubelet            Successfully pulled image "mysql:latest" in 2.245s (2.245s including waiting). Image size: 272345689 bytes.
+  Normal   Pulled     8m32s                   kubelet            Successfully pulled image "mysql:latest" in 2.073s (2.073s including waiting). Image size: 272345689 bytes.
+  Normal   Created    8m30s (x2 over 10m)     kubelet            Created container: dbapp
+  Normal   Started    8m29s (x2 over 10m)     kubelet            Started container dbapp
+  Normal   Killing    7m36s (x2 over 9m6s)    kubelet            Container dbapp failed startup probe, will be restarted
+  Normal   Pulling    7m5s (x3 over 10m)      kubelet            Pulling image "mysql:latest"
+  Warning  Unhealthy  4m56s (x18 over 9m46s)  kubelet            Startup probe failed: dial tcp 192.168.74.20:3306: connect: connection refused
+
+finding: dbapp container is failing its startup probe, causing k8s to kill it with an exit code 137 (out of memory or sigkill due to probe failuer). 
+Current statup probe is 50 secs before it fails. To fix this, increase startup probe time. 
+
+
+Updated YAML:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: authentication
+spec:
+  containers:
+    - name: authapp
+      image: nginx
+    - name: dbapp
+      image: mysql:latest
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "abcd1234!@#$"
+        - name: MYSQL_DATABASE
+          value: "auth_db"
+      ports:
+        - containerPort: 3306
+          name: mysql
+      startupProbe:
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 15
+        periodSeconds: 10
+        failureThreshold: 10
+      livenessProbe:
+        tcpSocket:
+          port: 3306
+        periodSeconds: 10
+      readinessProbe:
+        tcpSocket:
+          port: 3306
+        periodSeconds: 10
+
+Showing the correct status now:
+root@923bf0c1aa1c:~# kubectl get pods
+NAME             READY   STATUS             RESTARTS         AGE
+authentication   2/2     Running            0                3m23s
+crash-pod        0/1     CrashLoopBackOff   813 (2m5s ago)   75d
+my-pinned-pod    1/1     Running            16 (46m ago)     75d
 
