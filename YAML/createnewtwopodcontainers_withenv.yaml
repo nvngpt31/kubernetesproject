@@ -44,7 +44,7 @@ my-pinned-pod    1/1     Running            16 (31m ago)     75d
 
 While checking logs, it took time to startone min and password didn't get assigned. 
 
-cloud_user@923bf0c1aa1c:~$ kubectl  logs authentication -c dbapp
+cloud_user@923bf0c1aa1c:~$ kubectl  logs authentication -c dbapp -p 
 2026-08-18 08:17:01+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 26.7.0-1.el9 started.
 2026-08-18 08:17:01+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
 2026-08-18 08:17:01+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 26.7.0-1.el9 started.
@@ -62,6 +62,10 @@ cloud_user@923bf0c1aa1c:~$ kubectl  logs authentication -c dbapp
 2026-08-18T08:17:46.494942Z 0 [System] [MY-015603] [Server] MySQL Server has access to 2 logical CPUs.
 2026-08-18T08:17:46.494965Z 0 [System] [MY-015603] [Server] MySQL Server has access to 2030141440 bytes of physical memory.
 2026-08-18T08:17:46.553155Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+
+root@923bf0c1aa1c:~# k logs authentication -c dbapp 
+Error from server (BadRequest): previous terminated container "dbapp" in pod "authentication" not found
+
 
 Log says password didnot get assigned, but when trying to logged in it took the assigned password and showing the db as well. 
 
