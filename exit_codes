@@ -1,0 +1,15 @@
+Common Docker and Kubernetes exit codes
+Exit code	Meaning	Common reason
+0	Success	Container completed normally
+1	General error	Application failure or script error
+2	Misuse of command	Invalid arguments or incorrect command usage
+125	Docker execution error	Docker daemon or docker run failure
+126	Cannot execute	Permission denied or command not executable
+127	Command not found	Executable missing or incorrect path
+128	Invalid exit argument	Invalid exit status in some shell contexts
+130	Interrupted (SIGINT)	Ctrl+C
+134	Aborted (SIGABRT)	Application abort
+137	Killed (SIGKILL)	OOMKilled or forced termination
+139	Segmentation fault (SIGSEGV)	Invalid memory access
+143	Terminated (SIGTERM)	Graceful shutdown request
+255	Exit status 255	Application-specific failure or runtime error
