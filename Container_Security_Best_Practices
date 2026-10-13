@@ -1,0 +1,52 @@
+Why Running as Root is Dangerous
+
+By default, container engines like Docker execute container processes as the root user (UID 0). If an attacker successfully exploits a vulnerability and breaks out of the container, 
+they inherit root privileges on the host operating system, potentially giving them complete control over your entire infrastructure. 
+
+1. Implement Non-Root Execution
+
+Enforcing the principle of least privilege is the most vital step in container security. 
+• In the Dockerfile: Create a dedicated application user and switch to them before running the entry point. 
+
+dockerfile
+FROM alpine:latest
+# Create a system user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Set appropriate ownership for application directories
+WORKDIR /app
+COPY --chown=appuser:appgroup . .
+
+# Switch to the non-root user
+USER appuser
+CMD ["./my-application"]
+
+Use code with caution.
+• At Container Runtime: If you cannot modify the container image, force a user change when starting the container:
+	• Docker: Use docker run --user 1001 my-image.
+	• Kubernetes: Define the user within the securityContext block:
+
+yaml
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+Use code with caution.
+
+2. Core Container Security Best Practices
+
+Beyond executing as a non-root user, apply these essential strategies to harden your containerized environments:
+
+Best Practice - Implementation Strategy - 	Impact
+1. Use Minimal Base -  Images	Build with Distroless or alpine-based images; leverage multi-stage builds.	 - Minimizes the attack surface by stripping out unnecessary tools like package managers, curl, or shells.
+2. Make the Filesystem Read-Only  - 	Pass --read-only in Docker or set readOnlyRootFilesystem: true in Kubernetes.	 
+- Prevents attackers from downloading malicious binaries, scripts, or writing persistent backdoors.
+3. Drop Linux Capabilities	 -  Strip default system permissions by applying --cap-drop=ALL, then only add back what is explicitly required.	 
+- Restricts access to sensitive kernel interactions, reducing vulnerability to kernel-level privilege escalations.
+4. Externalize Secrets	 -  Never hardcode environment variables, tokens, or API keys into Dockerfiles.  
+-  Inject them at runtime using systems like HashiCorp Vault or native Kubernetes Secrets.	Stops API keys and sensitive operational data from leaking through public or exposed image registries.
+5. Enable Automated Vulnerability Scanning	 - Embed automated tools like Trivy or Docker Scout directly into your CI/CD pipelines.	
+ -  Flags known software vulnerabilities (CVEs) and insecure defaults before code reaches your production environment.
+6. Deploy Rootless Runtimes	 -  Configure your underlying engine to run in Docker Rootless Mode or switch to an alternate engine like Podman.	
+ - Ensures the entire container engine daemon runs as an unprivileged host user, providing isolation from the system kernel.
+
