@@ -1,0 +1,32 @@
+Linux supports dozens of process signals. You can view the full list on your system by running kill -l in the terminal.
+The most common and important Unix/Linux signals include:
+
+Termination & Control Signals
+
+• SIGHUP (1): Hangup – Originally meant a terminal connection dropped; commonly repurposed by daemons as a trigger to reload configuration files. 
+• SIGINT (2): Interrupt – Sent from the keyboard using Ctrl+C to gracefully interrupt and stop a foreground process. 
+• SIGQUIT (3): Quit – Sent from the keyboard using Ctrl+\; terminates the process and dumps core. 
+• SIGABRT (6): Abort – Sent by a process calling abort(); causes abnormal termination and core dump. 
+• SIGTERM (15): Termination – The default kill signal; asks a process to clean up state, close files, and exit gracefully. 
+
+Pause & Resume Signals
+
+• SIGSTOP (19): Stop – Uncatchable signal that pauses/suspends a process immediately without terminating it. 
+• SIGTSTP (20): Terminal Stop – Sent from the keyboard using Ctrl+Z; pauses a foreground process so it can be resumed later. 
+• SIGCONT (18): Continue – Resumes a process that was previously paused by SIGSTOP or SIGTSTP.
+
+Hardware & Error Signals
+
+• SIGILL (4): Illegal Instruction – Triggered when a process tries to execute an invalid or malformed CPU instruction.
+• SIGTRAP (5): Trace/Breakpoint – Used by debuggers like gdb.
+• SIGBUS (7): Bus Error – Triggered by a memory access error (such as misaligned memory access).
+• SIGFPE (8): Floating-Point Exception – Triggered by invalid mathematical operations, such as dividing by zero.
+• SIGSEGV (11): Segmentation Fault – Triggered when a process tries to access memory it does not have permission to read or write.  
+
+Communication & System Signals
+
+• SIGPIPE (13): Broken Pipe – Sent to a process trying to write to a pipe that has no reading end.
+• SIGALRM (14): Alarm Clock – Timer signal triggered when a real-time interval timer expires.
+• SIGUSR1 (10) / SIGUSR2 (12): User-Defined – Custom signals available for programs to define their own application-specific behavior.
+• SIGCHLD (17): Child Status Change – Sent to a parent process when one of its child processes stops or exits. 
+
